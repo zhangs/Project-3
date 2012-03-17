@@ -1,7 +1,16 @@
 var http = require('http');
 var redis = require('redis');
-
 var client = redis.createClient();
+
+/*
+var expr = express.createServer();
+
+expr.get('/', function(req, res){
+    res.send('Hello World');
+});
+
+expr.listen(3000);
+*/
 
 http.createServer(function (req, res) {
 	client.mget(['awesome', 'gnarly', 'cool', 'rad', 'groovy'], function(error, responses) {
