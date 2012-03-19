@@ -11,13 +11,14 @@ var client = redis.createClient();
 // Non-blocking, thus everything runs at once
 // fucntion takes error and then results     
 // Automatically done for you, so no need, actually                                                                                                                                                                                  
-client.exists('awesome', function(error, exists) {
+/*client.exists('awesome', function(error, exists) {
     if(error) {
         console.log('ERROR: '+error);
     } else if(!exists) {
         client.set('awesome', 0); //create the awesome key
     };
 });
+*/
 
 var t = new twitter({
     consumer_key: credentials.consumer_key,
@@ -27,7 +28,35 @@ var t = new twitter({
 });
 
 t.stream(
-//	'statuses/links',  <--Returns all statuses containing http: and https:. 
+	'statuses/filter',
+	// no track parameter for statuses/links
+   { track: ['awesome', 'cool', 'rad', 'gnarly', 'groovy'] },
+    function(stream) {
+        stream.on('data', function(tweet) {
+			for(var i = 0; i < tweet.entities.urls.length; i++) {
+				console.log(tweet.entities.urls[i]);
+				console.log(tweet.text);
+				//if awesome is in the tweet text, increment the counter
+				if(tweet.text.match(tweet.entities.urls[i].url && /awesome/)) {
+					client.incr(tweet.entities.urls[i].url + ' and awesome');
+				}
+				if(tweet.text.match(tweet.entities.urls[i].url && /cool/)) {
+					client.incr(tweet.entities.urls[i].url + ' and cool');
+				}
+				if(tweet.text.match(tweet.entities.urls[i].url && /rad/)) {
+					client.incr(tweet.entities.urls[i].url + ' and rad');
+				}
+				if(tweet.text.match(tweet.entities.urls[i].url && /gnarly/)) {
+					client.incr(tweet.entities.urls[i].url + ' and gnarly');
+				}
+				if(tweet.text.match(tweet.entities.urls[i].url && /groovy/)) {
+					client.incr(tweet.entities.urls[i].url + ' and groovy');
+				}			
+			}
+        });
+    }
+	
+//<--Returns all statuses containing http: and https:. 
 //  The links stream is not a generally available resource. Few applications require this level 
 //  of access. Creative use of a combination of other resources and various access levels can 
 //  satisfy nearly every application use case.
@@ -52,7 +81,7 @@ t.stream(
 // to find the most common link
 // is my idea, but not sure how to do it
 
-    'statuses/filter',
+/*    'statuses/filter',
     { track: ['awesome', 'cool', 'rad', 'gnarly', 'groovy'] },
     function(stream) {
         stream.on('data', function(tweet) {
@@ -75,4 +104,5 @@ t.stream(
             }			
         });
     }
+	*/
 );
